@@ -1,4 +1,4 @@
-ackage com.udacity.jwdnd.course1.cloudstorage.controller;
+package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.form.LoginForm;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
