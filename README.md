@@ -127,3 +127,12 @@ You aren't required to understand hashing or encryption and that's why your tech
 [Encryption](https://en.wikipedia.org/wiki/Encryption)
 
 All of us here at Super*Duper*Drive wish you good luck with the project!
+
+# References
+[Setup logging](https://www.baeldung.com/spring-boot-logging)
+
+[Customize login form](https://docs.spring.io/spring-security/site/docs/4.2.19.RELEASE/guides/html5/form-javaconfig.html#overriding-the-default-configure-httpsecurity-method)
+
+[Configure logout](https://www.baeldung.com/spring-security-custom-logout-handler)
+
+[Default after login](https://www.baeldung.com/spring_redirect_after_login)
