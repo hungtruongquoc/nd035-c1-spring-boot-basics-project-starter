@@ -25,11 +25,11 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping()
-    public String loginUser(@ModelAttribute("user") LoginForm loginForm, Model model) {
-        String signInError = "Null";
-        logger.info("Login data: ", loginForm);
-        model.addAttribute("signInError", signInError);
-        return "login";
-    }
+//    @PostMapping()
+//    public String loginUser(@ModelAttribute("user") LoginForm loginForm, Model model) {
+//        String signInError = "Null";
+//        logger.info("Login data: ", loginForm);
+//        model.addAttribute("signInError", signInError);
+//        return "login";
+//    }
 }
