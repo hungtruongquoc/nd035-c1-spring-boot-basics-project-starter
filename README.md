@@ -136,3 +136,9 @@ All of us here at Super*Duper*Drive wish you good luck with the project!
 [Configure logout](https://www.baeldung.com/spring-security-custom-logout-handler)
 
 [Default after login](https://www.baeldung.com/spring_redirect_after_login)
+
+[File Upload Size Error](https://www.baeldung.com/spring-maxuploadsizeexceeded)
+
+[File Upload Example](https://github.com/eugenp/tutorials/blob/master/spring-web-modules/spring-mvc-forms-jsp/src/main/java/com/baeldung/springmvcforms/controller/FileUploadController.java)
+
+[Redirect with Spring](https://www.baeldung.com/spring-redirect-and-forward)
