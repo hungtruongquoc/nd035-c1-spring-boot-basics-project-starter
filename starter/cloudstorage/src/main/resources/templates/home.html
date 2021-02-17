@@ -85,6 +85,9 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                <div th:if="${null != param.noteSuccess && !param.noteSuccess}" class="alert alert-danger">
+                    <i class="fas fa-fw fa-exclamation-circle"></i>  <span th:text="${param.noteErrorMessage}"></span>
+                </div>
                 <button style="margin: 0.25em; display: flex; align-items: center" type="button"
                         class="btn btn-info float-right"
                         onclick="showNoteModal()">
@@ -289,7 +292,7 @@
 <script th:inline="javascript">
     // Activates the selected tab
     /*<![CDATA[*/
-    const activeTabName = /*[[${active}]]*/ 'files';
+    const activeTabName = /*[[${param.active}]]*/ 'files';
     $(`#nav-tab #nav-${activeTabName}-tab`).tab('show');
     /*]]>*/
 </script>

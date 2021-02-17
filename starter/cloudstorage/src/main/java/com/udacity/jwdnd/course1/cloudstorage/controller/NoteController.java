@@ -32,7 +32,6 @@ public class NoteController {
         String noteDataOperationError = "Failed to create this note. Please try again later.";
         boolean noteDataOperationSuccess = false;
         Note targetNote;
-        HashMap<String, Object> result = new HashMap<>();
 
         targetNote = new Note();
         targetNote.setNoteTitle(note.getNoteTitle()).setNoteDescription(note.getNoteDescription());
@@ -42,9 +41,7 @@ public class NoteController {
             noteDataOperationError = null;
         }
 
-        result.put("noteDataOperationError", noteDataOperationError);
-        result.put("noteDataOperationSuccess", noteDataOperationSuccess);
-        return result;
+        return this.createModelViewData(noteDataOperationError, noteDataOperationSuccess);
     }
 
     private HashMap<String, Object> updateNote(NoteForm note) throws NoSuchMethodException, InvocationTargetException,
@@ -52,7 +49,6 @@ public class NoteController {
         String noteDataOperationError = "Failed to update provided note. Please try again later.";
         boolean noteDataOperationSuccess = false;
         Note targetNote;
-        HashMap<String, Object> result = new HashMap<>();
 
         targetNote = this.noteService.getById(note.getNoteId());
         targetNote.setNoteTitle(note.getNoteTitle()).setNoteDescription(note.getNoteDescription());
@@ -62,15 +58,20 @@ public class NoteController {
             noteDataOperationError = null;
         }
 
-        result.put("noteDataOperationError", noteDataOperationError);
-        result.put("noteDataOperationSuccess", noteDataOperationSuccess);
-        return result;
+        return this.createModelViewData(noteDataOperationError, noteDataOperationSuccess);
     }
 
     private Integer performDataOperation(String methodName, Note targetNote)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Method performDataManipulation = NoteService.class.getMethod(methodName, Note.class);
         return (Integer) performDataManipulation.invoke(this.noteService, targetNote);
+    }
+
+    private HashMap<String, Object> createModelViewData(String errorMessage, boolean success) {
+        HashMap<String, Object> viewData = new HashMap<>();
+        viewData.put("noteErrorMessage", errorMessage);
+        viewData.put("noteSuccess", success);
+        return viewData;
     }
 
     public NoteController(NoteService noteService) {
@@ -80,7 +81,7 @@ public class NoteController {
     @PostMapping()
     public ModelAndView createNote(Model model, @ModelAttribute("newNote") NoteForm note) {
 
-        HashMap<String, Object> viewData = new HashMap<>();
+        HashMap<String, Object> viewData;
 
         try {
             if (note.isValid()) {
@@ -90,22 +91,19 @@ public class NoteController {
                     viewData = this.updateNote(note);
                 }
             } else {
-                viewData.put("noteDataOperationError", "Input is invalid");
-                viewData.put("noteDataOperationSuccess", false);
+                viewData = this.createModelViewData("Input is invalid", false);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException invocationError) {
-            viewData.put("noteDataOperationError", "Failed to work with note. Please try again later");
-            viewData.put("noteDataOperationSuccess", false);
+            viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
             logger.error("Cannot perform either update/create method using method invocation.");
             logger.error("Please make sure: the method does exist/the object is instantiated/the method is accessible");
         } catch (Exception exception) {
-            viewData.put("noteDataOperationError", "Failed to work with note. Please try again later");
-            viewData.put("noteDataOperationSuccess", false);
+            viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
             logger.error("Cannot create or update the provided note. Maybe some database error.");
         }
 
-
+        viewData.put("active", "notes");
         model.addAllAttributes(viewData);
-        return new ModelAndView("redirect:/home?active=notes", (ModelMap) model);
+        return new ModelAndView("redirect:/home", (ModelMap) model);
     }
 }

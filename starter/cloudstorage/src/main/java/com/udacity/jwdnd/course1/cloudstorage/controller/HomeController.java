@@ -30,12 +30,10 @@ public class HomeController {
     }
 
     @GetMapping()
-    public String homeView(Model model, @ModelAttribute("active") @RequestParam(required = false) String active) {
-        logger.info("Error message: {}", model.getAttribute("errorMessage"));
-        model.addAttribute("active", active);
-        model.addAttribute("files", this.fileService.getAllFiles());
-        model.addAttribute("notes", this.noteService.getAll());
-        model.addAttribute("newNote", new Note());
+    public String homeView(Model model) {
+        model.addAttribute("files", this.fileService.getAllFiles())
+                .addAttribute("notes", this.noteService.getAll())
+                .addAttribute("newNote", new Note());
         return "home";
     }
 }
