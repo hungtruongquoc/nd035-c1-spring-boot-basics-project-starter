@@ -13,18 +13,26 @@
 <div class="container">
     <div id="logoutDiv">
         <form action="#" method="POST" th:action="@{/logout}">
-            <button type="submit" class="btn btn-secondary float-right">Logout</button>
+            <button type="submit" class="btn btn-secondary float-right">
+                <i class="far fa-sign-out-alt"></i> Logout
+            </button>
         </form>
     </div>
     <div id="contentDiv" style="clear: right;">
         <nav style="clear: right;">
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link active" id="nav-files-tab" data-toggle="tab" href="#nav-files" role="tab"
-                   aria-controls="nav-files" aria-selected="true">Files</a>
+                   aria-controls="nav-files" aria-selected="true">
+                    <i class="far fa-file"></i> Files <span th:if="${!#lists.isEmpty(files)}" class="badge badge-dark" th:text="${#lists.size(files)}"></span>
+                </a>
                 <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab"
-                   aria-controls="nav-notes" aria-selected="false">Notes</a>
+                   aria-controls="nav-notes" aria-selected="false">
+                    <i class="far fa-sticky-note"></i> Notes <span th:if="${!#lists.isEmpty(notes)}" class="badge badge-info" th:text="${#lists.size(notes)}"></span>
+                </a>
                 <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials"
-                   role="tab" aria-controls="nav-credentials" aria-selected="false">Credentials</a>
+                   role="tab" aria-controls="nav-credentials" aria-selected="false">
+                    <i class="far fa-user-lock"></i> Credentials
+                </a>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -38,14 +46,16 @@
                 <form action="#" enctype="multipart/form-data" method="POST" th:action="@{/file-upload}">
                     <div class="container">
                         <div class="row" style="margin: 1em;">
-                            <div class="col-sm-2">
+                            <div class="col-sm-4">
                                 <label for="fileUpload">Upload a New File:</label>
                             </div>
                             <div class="col-sm-6">
                                 <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
                             </div>
-                            <div class="col-sm-4">
-                                <button type="submit" class="btn btn-dark">Upload</button>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-dark">
+                                    <i class="far fa-upload"></i> Upload
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -59,47 +69,69 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="file, stat: ${files}">
-                            <td>
-
-                            </td>
-                            <th scope="row" th:text="${file.getFileName()}"></th>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a target="_blank" class="btn btn-success">View</a>
-                                <a class="btn btn-danger">Delete</a>
-                            </td>
-                            <th scope="row">ExampleFile.txt</th>
-                        </tr>
+                            <tr th:each="file, stat: ${files}">
+                                <td>
+                                    <a href="#" target="_blank" class="btn btn-success" role="button">
+                                        View
+                                    </a>
+                                    <a href="#" class="btn btn-danger" role="button">
+                                        <i class="far fa-trash-alt"></i> Delete
+                                    </a>
+                                </td>
+                                <th scope="row" th:text="${file.getFileName()}"></th>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
+                <div th:if="${null != param.noteSuccess}" class="alert alert-dismissible fade show"
+                     th:classappend="${param.noteSuccess ? 'alert-success' : 'alert-danger'}">
+                    <i class="fas fa-fw fa-exclamation-circle"></i>  <span th:text="${param.noteErrorMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="far fa-times"></i></span>
+                    </button>
+                </div>
+                <button style="margin: 0.25em; display: flex; align-items: center" type="button"
+                        class="btn btn-info float-right"
                         onclick="showNoteModal()">
-                    + Add a New Note
+                    <span class="fa-stack" style="font-size: .9em">
+                        <i class="far fa-sticky-note fa-stack-2x"></i>
+                        <i class="far fa-plus fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <span>
+                        Add a New Note
+                    </span>
                 </button>
 
                 <div class="table-responsive">
-                    <table class="table table-striped" id="userTable">
+                    <h5 th:if="${#lists.isEmpty(notes)}" class="text-info">
+                        Create a note to remind yourself
+                    </h5>
+                    <table class="table table-striped" id="noteTable">
                         <thead>
-                        <tr>
-                            <th style="width: 20%" scope="col"></th>
-                            <th style="width: 20%" scope="col">Title</th>
-                            <th style="width: 60%" scope="col">Description</th>
-                        </tr>
+                            <tr>
+                                <th style="width: 25%" scope="col"></th>
+                                <th style="width: 20%" scope="col">Title</th>
+                                <th style="width: 55%" scope="col">Description</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>
-                                <button type="button" class="btn btn-success">Edit</button>
-                                <a class="btn btn-danger">Delete</a>
-                            </td>
-                            <th scope="row">Example Note Title</th>
-                            <td>Example Note Description</td>
-                        </tr>
+                            <tr th:each="note, stat: ${notes}">
+                                <td>
+                                    <a href="#" target="_blank" class="btn btn-success note-edit" role="button"
+                                       th:data-description="${note.noteDescription}" th:data-id="${note.noteId}"
+                                       th:data-title="${note.noteTitle}">
+                                        <i class="far fa-edit"></i> Edit
+                                    </a>
+                                    <a href="#" class="btn btn-danger note-delete" role="button" th:data-id="${note.noteId}"
+                                       th:data-title="${note.noteTitle}">
+                                        <i class="far fa-trash-alt"></i> Delete
+                                    </a>
+                                </td>
+                                <th scope="row" th:text="${note.getNoteTitle()}"></th>
+                                <td th:text="${note.getNoteDescription()}"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -115,25 +147,59 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST">
+                                <form action="#" method="POST" th:action="@{/notes}" th:object="${newNote}">
                                     <input type="hidden" name="noteId" id="note-id">
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Title</label>
                                         <input type="text" name="noteTitle" class="form-control" id="note-title"
-                                               maxlength="20" required>
+                                               maxlength="20" required th:field="*{noteTitle}">
                                     </div>
                                     <div class="form-group">
                                         <label for="note-description" class="col-form-label">Description</label>
                                         <textarea class="form-control" name="noteDescription" id="note-description"
-                                                  rows="5" maxlength="1000" required></textarea>
+                                                  rows="5" maxlength="1000" required
+                                                  th:field="*{noteDescription}"></textarea>
                                     </div>
                                     <button id="noteSubmit" type="submit" class="d-none"></button>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save
-                                    changes
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Close
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">
+                                    <i class="far fa-save"></i> Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="deleteNoteModal" tabindex="-1" role="dialog"
+                     aria-labelledby="noteDeleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="noteDeleteModalLabel">Note</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="#" method="POST"
+                                      th:action="@{/notes(action='delete')}" th:object="${newNote}">
+                                    <input type="hidden" name="noteId" id="deleted-note-id" th:field="*{noteId}">
+                                    <div class="alert alert-warning" role="alert">
+                                        The note <span class="h5" id="deleted-note-title"></span> will be deleted permanently. Are you sure?
+                                    </div>
+                                    <button id="deletedNoteSubmit" type="submit" class="d-none"></button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="$('#deletedNoteSubmit').click();">
+                                    <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
                         </div>
@@ -143,7 +209,7 @@
             <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
                         onclick="showCredentialModal()">
-                    + Add a New Credential
+                    <i class="far fa-user-plus"></i> Add a New Credential
                 </button>
 
                 <div class="table-responsive">
@@ -221,12 +287,36 @@
 
 <!--For opening the note modal-->
 <script type="text/javascript">
+
+    function updateNoteFormAction(jqueryForm, noteId) {
+        const currentAction = jqueryForm.attr('action');
+        jqueryForm.attr('action', `${currentAction}?id=${noteId}`)
+    }
     // For opening the note modal
     function showNoteModal(noteId, noteTitle, noteDescription) {
         $('#note-id').val(noteId ? noteId : '');
         $('#note-title').val(noteTitle ? noteTitle : '');
         $('#note-description').val(noteDescription ? noteDescription : '');
-        $('#noteModal').modal('show');
+        const $modal = $('#noteModal');
+        $modal.on('shown.bs.modal', function(e) {
+            if (noteId) {
+                updateNoteFormAction($modal.find('form'), noteId);
+            }
+        })
+        $modal.modal('show');
+    }
+
+    function showDeleteNoteModal(noteId, noteTitle) {
+        $('#deleted-note-id').val(noteId ? noteId : '');
+        $('#deleted-note-title').text(noteTitle ? noteTitle : '');
+
+        const $modal = $('#deleteNoteModal');
+        $modal.on('shown.bs.modal', function(e) {
+            if (noteId) {
+                updateNoteFormAction($modal.find('form'), noteId);
+            }
+        })
+        $modal.modal('show');
     }
 
     // For opening the credentials modal
@@ -237,6 +327,29 @@
         $('#credential-password').val(password ? password : '');
         $('#credentialModal').modal('show');
     }
+
+    // For showing the edit modal
+    $('#noteTable').on('click', 'a.note-edit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const {id, description, title} = $(this).data();
+        showNoteModal(id, title, description);
+    }).on('click', 'a.note-delete', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const {id,title} = $(this).data();
+        debugger;
+        showDeleteNoteModal(id, title);
+    });
+
+
+</script>
+<script th:inline="javascript">
+    // Activates the selected tab
+    /*<![CDATA[*/
+    const activeTabName = /*[[${param.active}]]*/ 'files';
+    $(`#nav-tab #nav-${activeTabName}-tab`).tab('show');
+    /*]]>*/
 </script>
 </body>
 </html>
