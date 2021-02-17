@@ -12,6 +12,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.InvocationTargetException;
@@ -31,14 +33,10 @@ public class NoteController {
             IllegalAccessException {
         String noteDataOperationError = "Failed to create this note. Please try again later.";
         boolean noteDataOperationSuccess = false;
-        Note targetNote;
 
-        targetNote = new Note();
-        targetNote.setNoteTitle(note.getNoteTitle()).setNoteDescription(note.getNoteDescription());
-
-        if (1 == this.performDataOperation("createNote", targetNote)) {
+        if (1 == this.performDataOperation("createNote", note)) {
             noteDataOperationSuccess = true;
-            noteDataOperationError = null;
+            noteDataOperationError = "New note was created.";
         }
 
         return this.createModelViewData(noteDataOperationError, noteDataOperationSuccess);
@@ -48,22 +46,27 @@ public class NoteController {
             IllegalAccessException {
         String noteDataOperationError = "Failed to update provided note. Please try again later.";
         boolean noteDataOperationSuccess = false;
-        Note targetNote;
 
-        targetNote = this.noteService.getById(note.getNoteId());
-        targetNote.setNoteTitle(note.getNoteTitle()).setNoteDescription(note.getNoteDescription());
-
-        if (1 == this.performDataOperation("updateNote", targetNote)) {
+        if (1 == this.performDataOperation("updateNote", note)) {
             noteDataOperationSuccess = true;
-            noteDataOperationError = null;
+            noteDataOperationError = "Note was updated successfully";
         }
 
         return this.createModelViewData(noteDataOperationError, noteDataOperationSuccess);
     }
 
-    private Integer performDataOperation(String methodName, Note targetNote)
+    private Integer performDataOperation(String methodName, NoteForm noteForm)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Note targetNote;
         Method performDataManipulation = NoteService.class.getMethod(methodName, Note.class);
+
+        if (noteForm.hasNoteId()) {
+            targetNote = this.noteService.getById(noteForm.getNoteId());
+        } else {
+            targetNote = new Note();
+        }
+        targetNote.setNoteTitle(noteForm.getNoteTitle()).setNoteDescription(noteForm.getNoteDescription());
+
         return (Integer) performDataManipulation.invoke(this.noteService, targetNote);
     }
 
@@ -79,27 +82,38 @@ public class NoteController {
     }
 
     @PostMapping()
-    public ModelAndView createNote(Model model, @ModelAttribute("newNote") NoteForm note) {
+    public ModelAndView createNote(Model model, @ModelAttribute("newNote") NoteForm note,
+                                   @RequestParam(name = "action", required = false) String action) {
 
         HashMap<String, Object> viewData;
 
-        try {
-            if (note.isValid()) {
-                if (null == note.getNoteId()) {
-                    viewData = this.createNote(note);
-                } else {
-                    viewData = this.updateNote(note);
-                }
-            } else {
-                viewData = this.createModelViewData("Input is invalid", false);
+        if (null != action && action.contains("delete")) {
+            if (1 == this.noteService.deleteNote(note.getNoteId())) {
+                viewData = this.createModelViewData("Note was deleted successfully.", true);
             }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException invocationError) {
-            viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
-            logger.error("Cannot perform either update/create method using method invocation.");
-            logger.error("Please make sure: the method does exist/the object is instantiated/the method is accessible");
-        } catch (Exception exception) {
-            viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
-            logger.error("Cannot create or update the provided note. Maybe some database error.");
+            else {
+                viewData = this.createModelViewData("Failed to delete the note. Please try again later.", false);
+            }
+        }
+        else {
+            try {
+                if (note.isValid()) {
+                    if (null == note.getNoteId()) {
+                        viewData = this.createNote(note);
+                    } else {
+                        viewData = this.updateNote(note);
+                    }
+                } else {
+                    viewData = this.createModelViewData("Input is invalid", false);
+                }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException invocationError) {
+                viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
+                logger.error("Cannot perform either update/create method using method invocation.");
+                logger.error("Please make sure: the method does exist/the object is instantiated/the method is accessible");
+            } catch (Exception exception) {
+                viewData = this.createModelViewData("Failed to work with note. Please try again later", false);
+                logger.error("Cannot create or update the provided note. Maybe some database error.");
+            }
         }
 
         viewData.put("active", "notes");

@@ -27,4 +27,8 @@ public class NoteService {
     public int updateNote(Note currentNote) {
         return this.noteMapper.update(currentNote);
     }
+
+    public int deleteNote(Integer noteId) {
+        return this.noteMapper.delete(noteId);
+    }
 }

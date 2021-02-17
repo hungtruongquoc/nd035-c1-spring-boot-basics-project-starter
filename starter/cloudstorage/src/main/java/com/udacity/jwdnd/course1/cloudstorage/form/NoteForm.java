@@ -40,4 +40,8 @@ public class NoteForm {
         }
         return null != this.noteDescription && !"".equals(this.noteDescription) && this.noteDescription.length() <= 1000;
     }
+
+    public boolean hasNoteId() {
+        return null != noteId;
+    }
 }

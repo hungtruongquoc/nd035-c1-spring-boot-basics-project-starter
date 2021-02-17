@@ -85,8 +85,12 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                <div th:if="${null != param.noteSuccess && !param.noteSuccess}" class="alert alert-danger">
+                <div th:if="${null != param.noteSuccess}" class="alert alert-dismissible fade show"
+                     th:classappend="${param.noteSuccess ? 'alert-success' : 'alert-danger'}">
                     <i class="fas fa-fw fa-exclamation-circle"></i>  <span th:text="${param.noteErrorMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="far fa-times"></i></span>
+                    </button>
                 </div>
                 <button style="margin: 0.25em; display: flex; align-items: center" type="button"
                         class="btn btn-info float-right"
@@ -120,7 +124,8 @@
                                        th:data-title="${note.noteTitle}">
                                         <i class="far fa-edit"></i> Edit
                                     </a>
-                                    <a href="#" class="btn btn-danger" role="button">
+                                    <a href="#" class="btn btn-danger note-delete" role="button" th:data-id="${note.noteId}"
+                                       th:data-title="${note.noteTitle}">
                                         <i class="far fa-trash-alt"></i> Delete
                                     </a>
                                 </td>
@@ -164,6 +169,37 @@
                                 </button>
                                 <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">
                                     <i class="far fa-save"></i> Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="deleteNoteModal" tabindex="-1" role="dialog"
+                     aria-labelledby="noteDeleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="noteDeleteModalLabel">Note</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="#" method="POST"
+                                      th:action="@{/notes(action='delete')}" th:object="${newNote}">
+                                    <input type="hidden" name="noteId" id="deleted-note-id" th:field="*{noteId}">
+                                    <div class="alert alert-warning" role="alert">
+                                        The note <span class="h5" id="deleted-note-title"></span> will be deleted permanently. Are you sure?
+                                    </div>
+                                    <button id="deletedNoteSubmit" type="submit" class="d-none"></button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="$('#deletedNoteSubmit').click();">
+                                    <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
                         </div>
@@ -270,6 +306,19 @@
         $modal.modal('show');
     }
 
+    function showDeleteNoteModal(noteId, noteTitle) {
+        $('#deleted-note-id').val(noteId ? noteId : '');
+        $('#deleted-note-title').text(noteTitle ? noteTitle : '');
+
+        const $modal = $('#deleteNoteModal');
+        $modal.on('shown.bs.modal', function(e) {
+            if (noteId) {
+                updateNoteFormAction($modal.find('form'), noteId);
+            }
+        })
+        $modal.modal('show');
+    }
+
     // For opening the credentials modal
     function showCredentialModal(credentialId, url, username, password) {
         $('#credential-id').val(credentialId ? credentialId : '');
@@ -285,6 +334,12 @@
         event.stopPropagation();
         const {id, description, title} = $(this).data();
         showNoteModal(id, title, description);
+    }).on('click', 'a.note-delete', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const {id,title} = $(this).data();
+        debugger;
+        showDeleteNoteModal(id, title);
     });
 
 
