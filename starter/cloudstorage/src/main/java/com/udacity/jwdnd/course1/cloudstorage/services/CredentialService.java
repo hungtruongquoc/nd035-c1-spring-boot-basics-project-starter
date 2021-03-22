@@ -35,4 +35,8 @@ public class CredentialService {
     public Credential getById(Integer credentialId) {
         return this.credentialMapper.findById(credentialId);
     }
+
+    public Integer deleteCredential(Integer credentialId) {
+        return this.credentialMapper.delete(credentialId);
+    }
 }

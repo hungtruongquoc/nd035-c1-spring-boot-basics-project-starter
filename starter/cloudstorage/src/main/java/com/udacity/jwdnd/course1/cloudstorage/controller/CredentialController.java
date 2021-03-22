@@ -15,6 +15,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 
@@ -42,53 +43,70 @@ public class CredentialController extends BaseController {
     }
 
     @PostMapping()
-    public ModelAndView createCredentials(Model model, @ModelAttribute("newCredential") CredentialForm form) {
+    public ModelAndView createCredentials(Model model, @ModelAttribute("newCredential") CredentialForm form,
+                                          @RequestParam(name = "action", required = false) String action) {
         Integer result;
         HashMap<String, Object> viewData;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getUser((String) auth.getPrincipal());
-        if (form.isValid()) {
-            HashMap<String, Object> methodResult = this.getDataMethod(null != form.getCredentialId());
-            // Determines the target object
-            Credential target = new Credential();
-
-            if (null != form.getCredentialId()) {
-                target = this.mainService.getById(form.getCredentialId());
-            }
-            // Updates data for the target object
-            target.setKey(form.getKey()).setPassword(form.getPassword()).setUsername(form.getUsername())
-                    .setUrl(form.getUrl()).setUserId(currentUser.getUserId());
-
-            if (this.hasMethod(methodResult)) {
-                Method method = (Method) methodResult.get("method");
-                String methodName = (String) methodResult.get("methodName");
-
-                try {
-                    result = (Integer) method.invoke(this.mainService, target);
-                    if (1 == result) {
-                        if (this.isMethodAnUpdate(methodResult)) {
-                            viewData = this.createModelViewData("New credential created", true);
-                        } else {
-                            viewData = this.createModelViewData("Provided credential updated", true);
-                        }
-                    } else {
-                        viewData = this.createModelViewData("Failed to manipulate provided credential", false);
-                    }
-                } catch (InvocationTargetException exception) {
-                    viewData = this.createModelViewData("Failed to work with provided credential", false);
-                    logger.error("Invalid target: {}", target);
-                } catch (IllegalAccessException accessEx) {
-                    viewData = this.createModelViewData("Failed to call method to manipulate provided credential", false);
-                    logger.error("Cannot access the method: {}", methodName);
-                } catch (Exception exception) {
-                    viewData = this.createModelViewData("Failed to manipulate provided credential", false);
-                    logger.error("Cannot perform {} method", methodName);
+        if (null != action && action.contains("delete")) {
+            if (form.hasId()) {
+                if (1 == this.mainService.deleteCredential(form.getCredentialId())) {
+                    viewData = this.createModelViewData("The provided credential was deleted successfully.",
+                            true);
+                } else {
+                    logger.error("Failed to delete the selected credential.");
+                    viewData = this.createModelViewData("The provided credential cannot be deleted.",
+                            false);
                 }
             } else {
-                viewData = this.createModelViewData("Failed to get provided method", false);
+                logger.error("No credential was selected.");
+                viewData = this.createModelViewData("No credential selected.", false);
             }
         } else {
-            viewData = this.createModelViewData("Input is invalid", false);
+            if (form.isValid()) {
+                HashMap<String, Object> methodResult = this.getDataMethod(null != form.getCredentialId());
+                // Determines the target object
+                Credential target = new Credential();
+
+                if (null != form.getCredentialId()) {
+                    target = this.mainService.getById(form.getCredentialId());
+                }
+                // Updates data for the target object
+                target.setKey(form.getKey()).setPassword(form.getPassword()).setUsername(form.getUsername())
+                        .setUrl(form.getUrl()).setUserId(currentUser.getUserId());
+
+                if (this.hasMethod(methodResult)) {
+                    Method method = (Method) methodResult.get("method");
+                    String methodName = (String) methodResult.get("methodName");
+
+                    try {
+                        result = (Integer) method.invoke(this.mainService, target);
+                        if (1 == result) {
+                            if (this.isMethodAnUpdate(methodResult)) {
+                                viewData = this.createModelViewData("New credential created", true);
+                            } else {
+                                viewData = this.createModelViewData("Provided credential updated", true);
+                            }
+                        } else {
+                            viewData = this.createModelViewData("Failed to manipulate provided credential", false);
+                        }
+                    } catch (InvocationTargetException exception) {
+                        viewData = this.createModelViewData("Failed to work with provided credential", false);
+                        logger.error("Invalid target: {}", target);
+                    } catch (IllegalAccessException accessEx) {
+                        viewData = this.createModelViewData("Failed to call method to manipulate provided credential", false);
+                        logger.error("Cannot access the method: {}", methodName);
+                    } catch (Exception exception) {
+                        viewData = this.createModelViewData("Failed to manipulate provided credential", false);
+                        logger.error("Cannot perform {} method", methodName);
+                    }
+                } else {
+                    viewData = this.createModelViewData("Failed to get provided method", false);
+                }
+            } else {
+                viewData = this.createModelViewData("Input is invalid", false);
+            }
         }
 
         viewData.put("active", "credentials");

@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
@@ -42,10 +43,18 @@ public class HomeController {
     @GetMapping()
     public String homeView(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userService.getUser((String) auth.getPrincipal());
+        User currentUser;
+        Credential[] credentials = null;
+        if (null != auth) {
+            currentUser = userService.getUser((String) auth.getPrincipal());
+            if (null != currentUser) {
+                credentials = this.credentialService.getCredentialsByUser(currentUser.getUserId());
+            }
+        }
+
         model.addAttribute("files", this.fileService.getAllFiles())
                 .addAttribute("notes", this.noteService.getAll())
-                .addAttribute("credentials", this.credentialService.getCredentialsByUser(currentUser.getUserId()))
+                .addAttribute("credentials", credentials)
                 .addAttribute("errorMessage", null)
                 .addAttribute("newNote", new Note());
         return "home";

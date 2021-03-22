@@ -226,7 +226,7 @@
                 </button>
 
                 <div class="table-responsive">
-                    <h5 th:if="${#lists.isEmpty(notes)}" class="text-info">
+                    <h5 th:if="${#lists.isEmpty(credentials)}" class="text-info">
                         Create a credential item to save your password
                     </h5>
                     <table class="table table-striped" id="credentialTable">
@@ -246,9 +246,9 @@
                                        th:data-id="${credential.getCredentialId()}">
                                         <i class="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="btn btn-danger note-delete" role="button"
+                                    <a href="#" class="btn btn-danger credential-delete" role="button"
                                        th:data-id="${credential.getCredentialId()}"
-                                       th:data-title="${credential.getUsername()}">
+                                       th:data-title="${credential.getUrl()}">
                                         <i class="far fa-trash-alt"></i>
                                     </a>
                                 </td>
@@ -330,7 +330,7 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="far fa-times"></i> Cancel
                                 </button>
-                                <button type="button" class="btn btn-danger" onclick="$('#deletedNoteSubmit').click();">
+                                <button type="button" class="btn btn-danger" onclick="$('#deletedCredentialSubmit').click();">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
@@ -349,9 +349,29 @@
 <!--For opening the note modal-->
 <script type="text/javascript">
 
-    function updateNoteFormAction(jqueryForm, noteId) {
+    function updateFormAction(jqueryForm, id) {
         const currentAction = jqueryForm.attr('action');
-        jqueryForm.attr('action', `${currentAction}?id=${noteId}`)
+        if (currentAction.indexOf('?') >= 0) {
+            let components = currentAction.split('?');
+            if (2 === components.length) {
+                const newParams = components[1].split('&').map(item => {
+                    if (item.indexOf('id') >= 0) {
+                        return `id=${id}`
+                    }
+                    return item;
+                }).join('&');
+                if (newParams === components[1] && newParams.indexOf('id') < 0) {
+                    components[1] = `${components[1]}&id=${id}`;
+                }
+                jqueryForm.attr('action', components.join('?'))
+            }
+            else {
+                jqueryForm.attr('action', `${currentAction}?id=${id}`)
+            }
+        }
+        else {
+            jqueryForm.attr('action', `${currentAction}?id=${id}`)
+        }
     }
 
     // For opening the note modal
@@ -362,9 +382,11 @@
         const $modal = $('#noteModal');
         $modal.on('shown.bs.modal', function (e) {
             if (noteId) {
-                updateNoteFormAction($modal.find('form'), noteId);
+                updateFormAction($modal.find('form'), noteId);
             }
-        })
+        }).on('hidden.bs.modal', function() {
+            $modal.off('shown.bs.modal');
+        });
         $modal.modal('show');
     }
 
@@ -375,9 +397,26 @@
         const $modal = $('#deleteNoteModal');
         $modal.on('shown.bs.modal', function (e) {
             if (noteId) {
-                updateNoteFormAction($modal.find('form'), noteId);
+                updateFormAction($modal.find('form'), noteId);
             }
-        })
+        }).on('hidden.bs.modal', function() {
+            $modal.off('shown.bs.modal');
+        });
+        $modal.modal('show');
+    }
+
+    function showDeleteCredentialModal(id, title) {
+        $('#deleted-credential-id').val(id ? id : '');
+        $('#deleted-credential-title').text(title ? title : '');
+
+        const $modal = $('#deleteCredentialModal');
+        $modal.on('shown.bs.modal', function (e) {
+            if (id) {
+                updateFormAction($modal.find('form'), id);
+            }
+        }).on('hidden.bs.modal', function() {
+            $modal.off('shown.bs.modal');
+        });
         $modal.modal('show');
     }
 
@@ -407,7 +446,9 @@
         $modalEl.on('shown.bs.modal', function () {
             $urlInput.focus();
             $submitButton.prop('disabled', true);
-        })
+        }).on('hidden.bs.modal', function() {
+            $modalEl.off('shown.bs.modal');
+        });
         // Shows form
         $modalEl.modal('show');
     }
@@ -422,10 +463,15 @@
         event.preventDefault();
         event.stopPropagation();
         const {id, title} = $(this).data();
-        debugger;
         showDeleteNoteModal(id, title);
     });
 
+    $('#credentialTable').on('click', 'a.credential-delete', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const {id, title} = $(this).data();
+        showDeleteCredentialModal(id, title);
+    })
 
 </script>
 <script th:inline="javascript">
