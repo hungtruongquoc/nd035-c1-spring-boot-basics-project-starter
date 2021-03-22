@@ -10,10 +10,10 @@ public class BaseController {
     protected String updateMethodName = "update";
     protected String retrieveMethodName = "getById";
 
-    protected HashMap<String, Object> createModelViewData(String errorMessage, boolean success) {
+    protected HashMap<String, Object> createModelViewData(String errorKey, String errorMessage, boolean success) {
         HashMap<String, Object> viewData = new HashMap<>();
-        viewData.put("noteErrorMessage", errorMessage);
-        viewData.put("noteSuccess", success);
+        viewData.put(String.format("%sErrorMessage", errorKey), errorMessage);
+        viewData.put(String.format("%sSuccess", errorKey), success);
         return viewData;
     }
 

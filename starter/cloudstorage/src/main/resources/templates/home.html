@@ -213,6 +213,13 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
+                <div th:if="${null != param.credentialSuccess}" class="alert alert-dismissible fade show"
+                     th:classappend="${param.credentialSuccess ? 'alert-success' : 'alert-danger'}">
+                    <i class="fas fa-fw fa-exclamation-circle"></i> <span th:text="${param.credentialErrorMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="far fa-times"></i></span>
+                    </button>
+                </div>
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
                         onclick="showCredentialModal()">
                     <i class="far fa-user-plus"></i> Add a New Credential
@@ -245,9 +252,11 @@
                                         <i class="far fa-trash-alt"></i>
                                     </a>
                                 </td>
-                                <th scope="row" th:text="${credential.getUrl()}"></th>
-                                <th scope="row" th:text="${credential.getUsername()}"></th>
-                                <th scope="row" th:text="${credential.getPassword()}"></th>
+                                <th scope="row">
+                                    <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
+                                </th>
+                                <td scope="row" th:text="${credential.getUsername()}"></td>
+                                <td scope="row" th:text="${credential.getPassword()}"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -291,6 +300,38 @@
                                 <button type="button" class="btn btn-primary" id="credential-submit"
                                         onclick="$('#credentialSubmit').click();">
                                     <i class="far fa-save"></i> Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="deleteCredentialModal" tabindex="-1" role="dialog"
+                     aria-labelledby="noteDeleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="credentialDeleteModalLabel">Credential</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="#" method="POST"
+                                      th:action="@{/credentials(action='delete')}" th:object="${newCredential}">
+                                    <input type="hidden" name="credentialId" id="deleted-credential-id">
+                                    <div class="alert alert-warning" role="alert">
+                                        The credential for website <span class="h5" id="deleted-credential-title"></span> will be deleted
+                                        permanently. Are you sure?
+                                    </div>
+                                    <button id="deletedCredentialSubmit" type="submit" class="d-none"></button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="$('#deletedNoteSubmit').click();">
+                                    <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
                         </div>

@@ -45,6 +45,12 @@ public class CredentialForm {
         if (null == this.url || "".equals(this.url)) {
             return false;
         }
+        if (!this.url.contains("http://") && !this.url.contains("https://")) {
+            return false;
+        }
+        if (!this.url.contains(".")) {
+            return false;
+        }
         if (null == this.username || "".equals(this.username)) {
             return false;
         }

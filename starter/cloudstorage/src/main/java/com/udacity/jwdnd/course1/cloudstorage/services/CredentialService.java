@@ -22,6 +22,12 @@ public class CredentialService {
         return records;
     }
 
+    public Credential[] getCredentialsByUser(Integer userId) {
+        Credential[] records = this.credentialMapper.getByUserId(userId);
+        logger.info("Get all credentials in service by user: {}", (Object[]) records);
+        return records;
+    }
+
     public int insert(Credential newCredential) {
         return this.credentialMapper.insert(newCredential);
     }

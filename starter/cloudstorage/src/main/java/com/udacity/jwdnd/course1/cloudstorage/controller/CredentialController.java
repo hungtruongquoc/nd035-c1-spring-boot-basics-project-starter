@@ -2,10 +2,14 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.form.CredentialForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
+import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,18 +28,25 @@ import java.util.HashMap;
 public class CredentialController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(CredentialController.class);
     private final CredentialService mainService;
+    private final UserService userService;
 
-    public CredentialController(CredentialService credentialSrv) {
+    public CredentialController(CredentialService credentialSrv, UserService userService) {
         this.mainService = credentialSrv;
         this.mainServiceClass = this.mainService.getClass();
         this.mainModelClass = Credential.class;
+        this.userService = userService;
+    }
+
+    private HashMap<String, Object> createModelViewData(String message, boolean success) {
+        return super.createModelViewData("credential", message, success);
     }
 
     @PostMapping()
     public ModelAndView createCredentials(Model model, @ModelAttribute("newCredential") CredentialForm form) {
         Integer result;
         HashMap<String, Object> viewData;
-
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.getUser((String) auth.getPrincipal());
         if (form.isValid()) {
             HashMap<String, Object> methodResult = this.getDataMethod(null != form.getCredentialId());
             // Determines the target object
@@ -46,7 +57,7 @@ public class CredentialController extends BaseController {
             }
             // Updates data for the target object
             target.setKey(form.getKey()).setPassword(form.getPassword()).setUsername(form.getUsername())
-                    .setUrl(form.getUrl());
+                    .setUrl(form.getUrl()).setUserId(currentUser.getUserId());
 
             if (this.hasMethod(methodResult)) {
                 Method method = (Method) methodResult.get("method");
