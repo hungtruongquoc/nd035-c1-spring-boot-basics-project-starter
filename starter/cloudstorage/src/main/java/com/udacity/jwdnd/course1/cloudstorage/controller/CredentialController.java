@@ -1,19 +1,89 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.form.CredentialForm;
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.ui.Model;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/credentials")
 @EnableWebSecurity
-public class CredentialController {
+public class CredentialController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(CredentialController.class);
+    private final CredentialService mainService;
 
-    public CredentialController() {
+    public CredentialController(CredentialService credentialSrv) {
+        this.mainService = credentialSrv;
+        this.mainServiceClass = this.mainService.getClass();
+        this.mainModelClass = Credential.class;
+    }
 
+    @PostMapping()
+    public ModelAndView createCredentials(Model model, @ModelAttribute("newCredential") CredentialForm form) {
+        Integer result;
+        HashMap<String, Object> viewData;
+
+        if (form.isValid()) {
+            HashMap<String, Object> methodResult = this.getDataMethod(null != form.getCredentialId());
+            // Determines the target object
+            Credential target = new Credential();
+
+            if (null != form.getCredentialId()) {
+                target = this.mainService.getById(form.getCredentialId());
+            }
+            // Updates data for the target object
+            target.setKey(form.getKey()).setPassword(form.getPassword()).setUsername(form.getUsername())
+                    .setUrl(form.getUrl());
+
+            if (this.hasMethod(methodResult)) {
+                Method method = (Method) methodResult.get("method");
+                String methodName = (String) methodResult.get("methodName");
+
+                try {
+                    result = (Integer) method.invoke(this.mainService, target);
+                    if (1 == result) {
+                        if (this.isMethodAnUpdate(methodResult)) {
+                            viewData = this.createModelViewData("New credential created", true);
+                        } else {
+                            viewData = this.createModelViewData("Provided credential updated", true);
+                        }
+                    } else {
+                        viewData = this.createModelViewData("Failed to manipulate provided credential", false);
+                    }
+                } catch (InvocationTargetException exception) {
+                    viewData = this.createModelViewData("Failed to work with provided credential", false);
+                    logger.error("Invalid target: {}", target);
+                } catch (IllegalAccessException accessEx) {
+                    viewData = this.createModelViewData("Failed to call method to manipulate provided credential", false);
+                    logger.error("Cannot access the method: {}", methodName);
+                } catch (Exception exception) {
+                    viewData = this.createModelViewData("Failed to manipulate provided credential", false);
+                    logger.error("Cannot perform {} method", methodName);
+                }
+            } else {
+                viewData = this.createModelViewData("Failed to get provided method", false);
+            }
+        } else {
+            viewData = this.createModelViewData("Input is invalid", false);
+        }
+
+        viewData.put("active", "credentials");
+        model.addAllAttributes(viewData);
+
+        return new ModelAndView("redirect:/home", (ModelMap) model);
     }
 
 

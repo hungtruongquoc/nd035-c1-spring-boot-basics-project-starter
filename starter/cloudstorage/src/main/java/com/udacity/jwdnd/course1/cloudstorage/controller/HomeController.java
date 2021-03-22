@@ -25,10 +25,10 @@ public class HomeController {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
-    public HomeController(FileService fileService, NoteService noteService, CredentialService credentailSrv) {
+    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialSrv) {
         this.fileService = fileService;
         this.noteService = noteService;
-        this.credentialService = credentailSrv;
+        this.credentialService = credentialSrv;
     }
 
     @GetMapping()

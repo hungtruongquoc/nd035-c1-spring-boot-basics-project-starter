@@ -21,4 +21,12 @@ public class CredentialService {
         logger.info("Get all credentials in service: {}", (Object[]) records);
         return records;
     }
+
+    public int insert(Credential newCredential) {
+        return this.credentialMapper.insert(newCredential);
+    }
+
+    public Credential getById(Integer credentialId) {
+        return this.credentialMapper.findById(credentialId);
+    }
 }

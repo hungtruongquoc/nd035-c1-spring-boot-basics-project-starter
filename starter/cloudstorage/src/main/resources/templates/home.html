@@ -34,7 +34,9 @@
                 </a>
                 <a class="nav-item nav-link" id="nav-credentials-tab" data-toggle="tab" href="#nav-credentials"
                    role="tab" aria-controls="nav-credentials" aria-selected="false">
-                    <i class="far fa-user-lock"></i> Credentials
+                    <i class="far fa-user-lock"></i> Credentials <span th:if="${!#lists.isEmpty(credentials)}"
+                                                                       class="badge badge-info"
+                                                                       th:text="${#lists.size(credentials)}"></span>
                 </a>
             </div>
         </nav>
@@ -217,25 +219,36 @@
                 </button>
 
                 <div class="table-responsive">
-                    <table class="table table-striped" th:object="${credentials}" id="credentialTable">
+                    <h5 th:if="${#lists.isEmpty(notes)}" class="text-info">
+                        Create a credential item to save your password
+                    </h5>
+                    <table class="table table-striped" id="credentialTable">
                         <thead>
-                        <tr>
-                            <th style="width: 20%" scope="col"></th>
-                            <th style="width: 35%" scope="col">URL</th>
-                            <th style="width: 20%" scope="col">Username</th>
-                            <th style="width: 25%" scope="col">Password</th>
-                        </tr>
+                            <tr>
+                                <th style="width: 20%" scope="col"></th>
+                                <th style="width: 35%" scope="col">URL</th>
+                                <th style="width: 20%" scope="col">Username</th>
+                                <th style="width: 25%" scope="col">Password</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>
-                                <button type="button" class="btn btn-success">Edit</button>
-                                <a class="btn btn-danger">Delete</a>
-                            </td>
-                            <th scope="row">Example Credential URL</th>
-                            <td>Example Credential Username</td>
-                            <td>Example Credential Password</td>
-                        </tr>
+                            <tr th:each="credential, stat: ${credentials}">
+                                <td>
+                                    <a href="#" target="_blank" class="btn btn-success note-edit" role="button"
+                                       th:data-description="${credential.getUsername()}"
+                                       th:data-id="${credential.getCredentialId()}">
+                                        <i class="far fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-danger note-delete" role="button"
+                                       th:data-id="${credential.getCredentialId()}"
+                                       th:data-title="${credential.getUsername()}">
+                                        <i class="far fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                                <th scope="row" th:text="${credential.getUrl()}"></th>
+                                <th scope="row" th:text="${credential.getUsername()}"></th>
+                                <th scope="row" th:text="${credential.getPassword()}"></th>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -251,12 +264,12 @@
                                 </button>
                             </div>
                             <div class="modal-body" id="credential-form">
-                                <form action="#" th:action="@{/credentails}" method="POST">
+                                <form action="#" th:action="@{/credentials}" method="POST" th:object="${newCredential}">
                                     <input type="hidden" name="credentialId" id="credential-id" autofocus required>
                                     <div class="form-group">
                                         <label for="credential-url" class="col-form-label">URL</label>
                                         <input type="text" name="url" class="form-control" id="credential-url"
-                                               maxlength="100" required data-field="url" />
+                                               maxlength="100" required data-field="url"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="credential-username" class="col-form-label">Username</label>
@@ -266,7 +279,7 @@
                                     <div class="form-group">
                                         <label for="credential-password" class="col-form-label">Password</label>
                                         <input type="text" name="password" class="form-control" id="credential-password"
-                                               maxlength="30" required data-field="password" />
+                                               maxlength="30" required data-field="password"/>
                                     </div>
                                     <button id="credentialSubmit" type="submit" class="d-none"></button>
                                 </form>
@@ -330,25 +343,31 @@
     // For opening the credentials modal
     function showCredentialModal(credentialId, url, username, password) {
         const $urlInput = $('#credential-url');
+        const $submitButton = $('#credential-submit');
+        const $modalEl = $('#credentialModal')
         let formValid = false;
         let credentialModel = {
             url: null,
             username: null,
             password: null
         };
+        // Sets initial value
         $('#credential-id').val(credentialId ? credentialId : '');
         $urlInput.val(url ? url : '');
         $('#credential-username').val(username ? username : '');
         $('#credential-password').val(password ? password : '');
-        const $modalEl = $('#credentialModal')
+        // Sets up events
         $('#credential-form').on('input', 'input', function (e) {
             credentialModel = {...credentialModel, [e.target.name]: e.target.value};
-            console.log(credentialModel);
+            formValid = credentialModel.url && credentialModel.username && credentialModel.password;
+            $submitButton.prop('disabled', !formValid);
         });
-        $modalEl.on('shown.bs.modal', function (event) {
+        // Sets form initial state
+        $modalEl.on('shown.bs.modal', function () {
             $urlInput.focus();
-            $('#credential-submit').prop('disabled', true);
+            $submitButton.prop('disabled', true);
         })
+        // Shows form
         $modalEl.modal('show');
     }
 
