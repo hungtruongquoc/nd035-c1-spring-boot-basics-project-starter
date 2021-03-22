@@ -58,8 +58,8 @@ public class CredentialForm {
     }
 
     public String toString() {
-        return String.format("url=%s, username=%s, password=%s, credentialId=%d",
-                this.url, this.username, this.password, this.credentialId);
+        return String.format("url=%s, username=%s, password=%s, credentialId=%d, key=%s",
+                this.url, this.username, this.password, this.credentialId, this.key);
     }
 
     public Integer getUserId() {
