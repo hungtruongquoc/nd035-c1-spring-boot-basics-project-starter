@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.InvocationTargetException;
@@ -23,11 +22,15 @@ import java.util.HashMap;
 @Controller
 @RequestMapping("/notes")
 @EnableWebSecurity
-public class NoteController {
+public class NoteController extends BaseController {
 
     private final NoteService noteService;
 
     private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
+
+    private HashMap<String, Object> createModelViewData(String message, boolean success) {
+        return super.createModelViewData("note", message, success);
+    }
 
     private HashMap<String, Object> createNote(NoteForm note) throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
@@ -68,13 +71,6 @@ public class NoteController {
         targetNote.setNoteTitle(noteForm.getNoteTitle()).setNoteDescription(noteForm.getNoteDescription());
 
         return (Integer) performDataManipulation.invoke(this.noteService, targetNote);
-    }
-
-    private HashMap<String, Object> createModelViewData(String errorMessage, boolean success) {
-        HashMap<String, Object> viewData = new HashMap<>();
-        viewData.put("noteErrorMessage", errorMessage);
-        viewData.put("noteSuccess", success);
-        return viewData;
     }
 
     public NoteController(NoteService noteService) {
