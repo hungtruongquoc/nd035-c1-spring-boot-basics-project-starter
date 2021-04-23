@@ -215,7 +215,8 @@
             <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
                 <div th:if="${null != param.credentialSuccess}" class="alert alert-dismissible fade show"
                      th:classappend="${param.credentialSuccess ? 'alert-success' : 'alert-danger'}">
-                    <i class="fas fa-fw fa-exclamation-circle"></i> <span th:text="${param.credentialErrorMessage}"></span>
+                    <i class="fas fa-fw fa-exclamation-circle"></i> <span
+                        th:text="${param.credentialErrorMessage}"></span>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true"><i class="far fa-times"></i></span>
                     </button>
@@ -231,33 +232,34 @@
                     </h5>
                     <table class="table table-striped" id="credentialTable">
                         <thead>
-                            <tr>
-                                <th style="width: 20%" scope="col"></th>
-                                <th style="width: 35%" scope="col">URL</th>
-                                <th style="width: 20%" scope="col">Username</th>
-                                <th style="width: 25%" scope="col">Password</th>
-                            </tr>
+                        <tr>
+                            <th style="width: 20%" scope="col"></th>
+                            <th style="width: 35%" scope="col">URL</th>
+                            <th style="width: 20%" scope="col">Username</th>
+                            <th style="width: 25%" scope="col">Password</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="credential, stat: ${credentials}">
-                                <td>
-                                    <a href="#" target="_blank" class="btn btn-success note-edit" role="button"
-                                       th:data-description="${credential.getUsername()}"
-                                       th:data-id="${credential.getCredentialId()}">
-                                        <i class="far fa-edit"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-danger credential-delete" role="button"
-                                       th:data-id="${credential.getCredentialId()}"
-                                       th:data-title="${credential.getUrl()}">
-                                        <i class="far fa-trash-alt"></i>
-                                    </a>
-                                </td>
-                                <th scope="row">
-                                    <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
-                                </th>
-                                <td scope="row" th:text="${credential.getUsername()}"></td>
-                                <td scope="row" th:text="${credential.getPassword()}"></td>
-                            </tr>
+                        <tr th:each="credential, stat: ${credentials}">
+                            <td>
+                                <a href="credentials" th:href="@{/credentials/{id}(id=${credential.getCredentialId()})}"
+                                   class="btn btn-success note-edit" role="button"
+                                   th:data-description="${credential.getUsername()}"
+                                   th:data-id="${credential.getCredentialId()}">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                                <a href="#" class="btn btn-danger credential-delete" role="button"
+                                   th:data-id="${credential.getCredentialId()}"
+                                   th:data-title="${credential.getUrl()}">
+                                    <i class="far fa-trash-alt"></i>
+                                </a>
+                            </td>
+                            <th scope="row">
+                                <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
+                            </th>
+                            <td scope="row" th:text="${credential.getUsername()}"></td>
+                            <td scope="row" th:text="${credential.getPassword()}"></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -305,6 +307,53 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="credentialUpdateModal" tabindex="-1" role="dialog"
+                     aria-labelledby="credentialModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="credentialUpdateModalLabel">Credential</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true"><i class="far fa-times"></i></span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="credential-update-form">
+                                <form action="#" th:action="@{/credentials}" method="POST"
+                                      th:object="${currentCredential}">
+                                    <input type="hidden" name="credentialId" id="credential-update-id"
+                                           autofocus required th:field="*{credentialId}">
+                                    <div class="form-group">
+                                        <label for="credential-update-url" class="col-form-label">URL</label>
+                                        <input type="text" name="url" class="form-control" id="credential-update-url"
+                                               maxlength="100" required data-field="url" th:field="*{url}"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credential-update-username" class="col-form-label">Username</label>
+                                        <input type="text" name="username" class="form-control"
+                                               id="credential-update-username"
+                                               maxlength="30" required data-field="username" th:field="*{username}"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credential-update-password" class="col-form-label">Password</label>
+                                        <input type="text" name="password" class="form-control"
+                                               id="credential-update-password" th:field="*{rawPassword}"
+                                               maxlength="30" required data-field="password"/>
+                                    </div>
+                                    <button id="credentialUpdateSubmit" type="submit" class="d-none"></button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Close
+                                </button>
+                                <button type="button" class="btn btn-primary" id="credential-update-submit"
+                                        onclick="$('#credentialUpdateSubmit').click();">
+                                    <i class="far fa-save"></i> Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal fade" id="deleteCredentialModal" tabindex="-1" role="dialog"
                      aria-labelledby="noteDeleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -320,7 +369,9 @@
                                       th:action="@{/credentials(action='delete')}" th:object="${newCredential}">
                                     <input type="hidden" name="credentialId" id="deleted-credential-id">
                                     <div class="alert alert-warning" role="alert">
-                                        The credential for website <span class="h5" id="deleted-credential-title"></span> will be deleted
+                                        The credential for website <span class="h5"
+                                                                         id="deleted-credential-title"></span> will be
+                                        deleted
                                         permanently. Are you sure?
                                     </div>
                                     <button id="deletedCredentialSubmit" type="submit" class="d-none"></button>
@@ -330,7 +381,8 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="far fa-times"></i> Cancel
                                 </button>
-                                <button type="button" class="btn btn-danger" onclick="$('#deletedCredentialSubmit').click();">
+                                <button type="button" class="btn btn-danger"
+                                        onclick="$('#deletedCredentialSubmit').click();">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
@@ -345,7 +397,17 @@
 <script th:src="@{/js/jquery-slim.min.js}"></script>
 <script th:src="@{/js/popper.min.js}"></script>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-
+<script th:inline="javascript">
+    // Activates the selected tab
+    /*<![CDATA[*/
+    const activeTabName = /*[[${param.active}]]*/ 'files';
+    $(`#nav-tab #nav-${activeTabName}-tab`).tab('show');
+    /*]]>*/
+    /*<![CDATA[*/
+    const showCredentialUpdate = /*[[${param.currentCredential}]]*/ null;
+    console.log(showCredentialUpdate);
+    /*]]>*/
+</script>
 <!--For opening the note modal-->
 <script type="text/javascript">
 
@@ -364,12 +426,10 @@
                     components[1] = `${components[1]}&id=${id}`;
                 }
                 jqueryForm.attr('action', components.join('?'))
-            }
-            else {
+            } else {
                 jqueryForm.attr('action', `${currentAction}?id=${id}`)
             }
-        }
-        else {
+        } else {
             jqueryForm.attr('action', `${currentAction}?id=${id}`)
         }
     }
@@ -384,7 +444,7 @@
             if (noteId) {
                 updateFormAction($modal.find('form'), noteId);
             }
-        }).on('hidden.bs.modal', function() {
+        }).on('hidden.bs.modal', function () {
             $modal.off('shown.bs.modal');
         });
         $modal.modal('show');
@@ -399,7 +459,7 @@
             if (noteId) {
                 updateFormAction($modal.find('form'), noteId);
             }
-        }).on('hidden.bs.modal', function() {
+        }).on('hidden.bs.modal', function () {
             $modal.off('shown.bs.modal');
         });
         $modal.modal('show');
@@ -414,7 +474,7 @@
             if (id) {
                 updateFormAction($modal.find('form'), id);
             }
-        }).on('hidden.bs.modal', function() {
+        }).on('hidden.bs.modal', function () {
             $modal.off('shown.bs.modal');
         });
         $modal.modal('show');
@@ -446,7 +506,7 @@
         $modalEl.on('shown.bs.modal', function () {
             $urlInput.focus();
             $submitButton.prop('disabled', true);
-        }).on('hidden.bs.modal', function() {
+        }).on('hidden.bs.modal', function () {
             $modalEl.off('shown.bs.modal');
         });
         // Shows form
@@ -471,15 +531,12 @@
         event.stopPropagation();
         const {id, title} = $(this).data();
         showDeleteCredentialModal(id, title);
-    })
+    });
 
-</script>
-<script th:inline="javascript">
-    // Activates the selected tab
-    /*<![CDATA[*/
-    const activeTabName = /*[[${param.active}]]*/ 'files';
-    $(`#nav-tab #nav-${activeTabName}-tab`).tab('show');
-    /*]]>*/
+    if (showCredentialUpdate) {
+        const $modal = $('#credentialUpdateModal');
+        $modal.modal('show');
+    }
 </script>
 </body>
 </html>

@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 public class CredentialService {
     private final CredentialMapper credentialMapper;
 
+    private final EncryptionService encryptor;
+
     private static final Logger logger = LoggerFactory.getLogger(CredentialService.class);
 
-    public CredentialService(CredentialMapper credentialMapper) {
+    public CredentialService(CredentialMapper credentialMapper, EncryptionService encryptor) {
         this.credentialMapper = credentialMapper;
+        this.encryptor = encryptor;
     }
 
     public Credential[] getAll() {
@@ -29,14 +32,26 @@ public class CredentialService {
     }
 
     public int insert(Credential newCredential) {
+        encryptPassword(newCredential);
         return this.credentialMapper.insert(newCredential);
     }
 
+    public int update(Credential credential) {
+        encryptPassword(credential);
+        return this.credentialMapper.update(credential);
+    }
+
     public Credential getById(Integer credentialId) {
-        return this.credentialMapper.findById(credentialId);
+        Credential currentCredential = this.credentialMapper.findById(credentialId);
+        currentCredential.setRawPassword(encryptor.decryptValue(currentCredential.getPassword(), currentCredential.getKey()));
+        return currentCredential;
     }
 
     public Integer deleteCredential(Integer credentialId) {
         return this.credentialMapper.delete(credentialId);
+    }
+
+    private void encryptPassword(Credential credential) {
+        credential.setPassword(encryptor.encryptValue(credential.getPassword(), credential.getKey()));
     }
 }

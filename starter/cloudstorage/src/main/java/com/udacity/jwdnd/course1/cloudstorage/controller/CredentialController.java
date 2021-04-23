@@ -13,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 
@@ -49,6 +46,19 @@ public class CredentialController extends BaseController {
         return super.createModelViewData("credential", message, success);
     }
 
+    @GetMapping()
+    public ModelAndView showList(Model model) {
+        model.addAttribute("active", "credentials");
+        return new ModelAndView("redirect:/home", (ModelMap) model);
+    }
+
+    @GetMapping("/{id}")
+    public ModelAndView showDetail(Model model, @PathVariable Integer id) {
+        model.addAttribute("active", "credentials");
+        model.addAttribute("currentCredential", id);
+        return new ModelAndView("redirect:/home", (ModelMap) model);
+    }
+
     @PostMapping()
     public ModelAndView createCredentials(Model model, @ModelAttribute("newCredential") CredentialForm form,
                                           @RequestParam(name = "action", required = false) String action) {
@@ -78,6 +88,7 @@ public class CredentialController extends BaseController {
         } else {
             if (form.isValid()) {
                 HashMap<String, Object> methodResult = this.getDataMethod(null != form.getCredentialId());
+                form.setUserId(currentUser.getUserId());
                 // Determines the target object
                 Credential target = new Credential();
 
@@ -86,9 +97,7 @@ public class CredentialController extends BaseController {
                 }
                 // Updates data for the target object
                 logger.info("Model: {}", form.toString());
-                target.setKey(form.getKey()).setPassword(this.encryptor.encryptValue(form.getPassword(), form.getKey()))
-                        .setUsername(form.getUsername())
-                        .setUrl(form.getUrl()).setUserId(currentUser.getUserId());
+                target.importFormValue(form);
 
                 if (this.hasMethod(methodResult)) {
                     Method method = (Method) methodResult.get("method");
@@ -98,9 +107,9 @@ public class CredentialController extends BaseController {
                         result = (Integer) method.invoke(this.mainService, target);
                         if (1 == result) {
                             if (this.isMethodAnUpdate(methodResult)) {
-                                viewData = this.createModelViewData("New credential created", true);
+                                viewData = this.createModelViewData("Provided credential updated" , true);
                             } else {
-                                viewData = this.createModelViewData("Provided credential updated", true);
+                                viewData = this.createModelViewData("New credential created", true);
                             }
                         } else {
                             viewData = this.createModelViewData("Failed to manipulate provided credential", false);

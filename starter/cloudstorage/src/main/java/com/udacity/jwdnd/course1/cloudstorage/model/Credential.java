@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
+import com.udacity.jwdnd.course1.cloudstorage.form.CredentialForm;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 
 public class Credential {
@@ -9,6 +10,7 @@ public class Credential {
     private String key;
     private String password;
     private Integer userId;
+    private String rawPassword;
 
     public Integer getCredentialId() {
         return credentialId;
@@ -62,5 +64,35 @@ public class Credential {
 
     public Integer getUserId() {
         return userId;
+    }
+
+    public String getFull() {
+        return String.format("%d", credentialId);
+    }
+
+    public String getRawPassword() {
+        return rawPassword;
+    }
+
+    public Credential setRawPassword(String value) {
+        rawPassword = value;
+        return this;
+    }
+
+    public boolean hasRawPassword() {
+        return null != getRawPassword() && !getRawPassword().equals("");
+    }
+
+    public boolean hasPassword() {
+        return null != getPassword() && !getPassword().equals("");
+    }
+
+    public boolean hasId() {
+        return null != getCredentialId();
+    }
+
+    public void importFormValue(CredentialForm form) {
+        setUsername(form.getUsername()).setUrl(form.getUrl()).setUserId(form.getUserId()).setKey(form.getKey());
+        setPassword(hasId() ? form.getRawPassword() : form.getPassword());
     }
 }

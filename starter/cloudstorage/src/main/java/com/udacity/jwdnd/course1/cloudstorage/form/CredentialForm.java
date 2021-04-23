@@ -6,6 +6,7 @@ public class CredentialForm {
     private String password;
     private Integer credentialId;
     private Integer userId;
+    private String rawPassword;
 
     public String getKey() {
         return key;
@@ -29,8 +30,9 @@ public class CredentialForm {
         return this.username;
     }
 
-    public void setUsername(String value) {
+    public CredentialForm setUsername(String value) {
         this.username = value;
+        return this;
     }
 
     public String getPassword() {
@@ -39,6 +41,14 @@ public class CredentialForm {
 
     public void setPassword(String value) {
         this.password = value;
+    }
+
+    public String getRawPassword() {
+        return rawPassword;
+    }
+
+    public void setRawPassword(String value) {
+        this.rawPassword = value;
     }
 
     public boolean isValid() {
@@ -54,7 +64,7 @@ public class CredentialForm {
         if (null == this.username || "".equals(this.username)) {
             return false;
         }
-        return null != this.password && !"".equals(this.password);
+        return (null != this.password && !"".equals(this.password)) || (null != this.rawPassword && !"".equals(this.rawPassword));
     }
 
     public String toString() {

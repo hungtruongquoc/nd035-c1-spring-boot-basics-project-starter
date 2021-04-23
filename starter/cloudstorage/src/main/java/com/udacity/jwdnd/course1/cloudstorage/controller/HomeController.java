@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/home")
@@ -41,9 +42,10 @@ public class HomeController {
     }
 
     @GetMapping()
-    public String homeView(Model model) {
+    public String homeView(Model model, @RequestParam(name = "currentCredential", required = false) Integer credentialId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser;
+        Credential currentCredential = new Credential();
         Credential[] credentials = null;
         if (null != auth) {
             currentUser = userService.getUser((String) auth.getPrincipal());
@@ -51,11 +53,15 @@ public class HomeController {
                 credentials = this.credentialService.getCredentialsByUser(currentUser.getUserId());
             }
         }
-
+        if (null != credentialId) {
+            currentCredential = credentialService.getById(credentialId);
+        }
         model.addAttribute("files", this.fileService.getAllFiles())
                 .addAttribute("notes", this.noteService.getAll())
                 .addAttribute("credentials", credentials)
                 .addAttribute("errorMessage", null)
+                .addAttribute("newCredential", new Credential())
+                .addAttribute("currentCredential", currentCredential)
                 .addAttribute("newNote", new Note());
         return "home";
     }
