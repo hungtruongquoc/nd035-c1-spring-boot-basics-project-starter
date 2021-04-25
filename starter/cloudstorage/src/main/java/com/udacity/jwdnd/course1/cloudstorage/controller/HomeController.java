@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
@@ -42,11 +43,15 @@ public class HomeController {
     }
 
     @GetMapping()
-    public String homeView(Model model, @RequestParam(name = "currentCredential", required = false) Integer credentialId) {
+    public String homeView(Model model, @RequestParam(name = "fileId", required = false) Integer fileId,
+                           @RequestParam(name = "currentCredential", required = false) Integer credentialId,
+                           @RequestParam(name = "fileDeleted", required = false) Integer fileDeleted) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser;
         Credential currentCredential = new Credential();
+        File currentFile = null;
         Credential[] credentials = null;
+
         if (null != auth) {
             currentUser = userService.getUser((String) auth.getPrincipal());
             if (null != currentUser) {
@@ -56,12 +61,18 @@ public class HomeController {
         if (null != credentialId) {
             currentCredential = credentialService.getById(credentialId);
         }
+        if (null != fileId) {
+            currentFile = fileService.findById(fileId);
+        }
+
         model.addAttribute("files", this.fileService.getAllFiles())
                 .addAttribute("notes", this.noteService.getAll())
                 .addAttribute("credentials", credentials)
                 .addAttribute("errorMessage", null)
                 .addAttribute("newCredential", new Credential())
                 .addAttribute("currentCredential", currentCredential)
+                .addAttribute("currentFile", currentFile)
+                .addAttribute("fileDeleteSuccess", null != fileDeleted && 1 == fileDeleted ? "The file was deleted successfully." : null)
                 .addAttribute("newNote", new Note());
         return "home";
     }
