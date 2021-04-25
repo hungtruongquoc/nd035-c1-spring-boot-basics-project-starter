@@ -18,9 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.concurrent.ThreadLocalRandom;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -32,14 +30,12 @@ public class CredentialController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(CredentialController.class);
     private final CredentialService mainService;
     private final UserService userService;
-    private final EncryptionService encryptor;
 
-    public CredentialController(CredentialService credentialSrv, UserService userService, EncryptionService encryptor) {
+    public CredentialController(CredentialService credentialSrv, UserService userService) {
         this.mainService = credentialSrv;
         this.mainServiceClass = this.mainService.getClass();
         this.mainModelClass = Credential.class;
         this.userService = userService;
-        this.encryptor = encryptor;
     }
 
     private HashMap<String, Object> createModelViewData(String message, boolean success) {

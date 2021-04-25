@@ -19,4 +19,16 @@ public class FileService {
     public File[] getAllFiles() {
         return this.fileMapper.files();
     }
+
+    public File findById(Integer id) {
+        return this.fileMapper.findById(id);
+    }
+
+    public Integer delete(Integer id) {
+        return this.fileMapper.delete(id);
+    }
+
+    public File getFile(Integer fileId, Integer userId) {
+        return fileMapper.getFile(fileId, userId);
+    }
 }

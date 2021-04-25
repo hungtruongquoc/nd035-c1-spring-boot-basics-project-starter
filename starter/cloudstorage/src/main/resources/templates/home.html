@@ -48,6 +48,19 @@
                 <div th:if="${param.errorMessage != null}" class="alert alert-danger">
                     <i class="fas fa-exclamation-circle"></i> <span th:text="${param.errorMessage}"></span>
                 </div>
+                <div th:if="${param.successUpload != null}" class="alert alert-success my-3">
+                    <i class="far fa-check-circle"></i> <span th:text="${param.successUpload}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="far fa-times"></i></span>
+                    </button>
+                </div>
+                <div th:if="${fileDeleteSuccess != null}" class="alert alert-success my-3">
+                    <i class="far fa-check-circle"></i>
+                    <span th:text="${fileDeleteSuccess}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="far fa-times"></i></span>
+                    </button>
+                </div>
                 <form action="#" enctype="multipart/form-data" method="POST" th:action="@{/file-upload}">
                     <div class="container">
                         <div class="row" style="margin: 1em;">
@@ -76,10 +89,12 @@
                         <tbody>
                         <tr th:each="file, stat: ${files}">
                             <td>
-                                <a href="#" target="_blank" class="btn btn-success" role="button">
+                                <a href="#" th:href="@{/files/{id}(id=${file.getFileId()})}" target="_blank"
+                                   class="btn btn-success" role="button">
                                     View
                                 </a>
-                                <a href="#" class="btn btn-danger" role="button">
+                                <a href="#" th:href="@{/files/{id}/delete(id=${file.getFileId()})}"
+                                   class="btn btn-danger" role="button">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </a>
                             </td>
@@ -87,6 +102,39 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="modal fade" id="fileDeleteModal" tabindex="-1" role="dialog"
+                     aria-labelledby="fileModalLabel" aria-hidden="true" th:if="${currentFile != null}">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="fileDeleteLabel">Note</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true"><i class="far fa-times"></i></span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="#" method="POST"
+                                      th:action="@{/files/{id}/delete(id=${currentFile.getFileId()})}"
+                                      th:object="${currentFile}">
+                                    <input type="hidden" name="fileId" id="deleted-filed-id" th:field="*{fileId}">
+                                    <div class="alert alert-warning" role="alert">
+                                        The file <span class="h5" id="deleted-file-name" th:text="*{fileName}"></span>
+                                        will be deleted permanently. Are you sure?
+                                    </div>
+                                    <button id="deletedFileSubmit" type="submit" class="d-none"></button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="far fa-times"></i> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="$('#deletedFileSubmit').click();">
+                                    <i class="far fa-trash-alt"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
@@ -407,6 +455,10 @@
     const showCredentialUpdate = /*[[${param.currentCredential}]]*/ null;
     console.log(showCredentialUpdate);
     /*]]>*/
+    /*<![CDATA[*/
+    const showFileDelete = /*[[${param.fileId}]]*/ null;
+    console.log(showFileDelete);
+    /*]]>*/
 </script>
 <!--For opening the note modal-->
 <script type="text/javascript">
@@ -535,6 +587,11 @@
 
     if (showCredentialUpdate) {
         const $modal = $('#credentialUpdateModal');
+        $modal.modal('show');
+    }
+
+    if (showFileDelete) {
+        const $modal = $('#fileDeleteModal');
         $modal.modal('show');
     }
 </script>
