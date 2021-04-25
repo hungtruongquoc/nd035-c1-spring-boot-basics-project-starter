@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.exceptions.FileExistenceException;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
@@ -38,12 +39,16 @@ public class FileUploadController {
     @PostMapping()
     public ModelAndView handleFileUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         User currentUser = userService.getUser((String) authentication.getPrincipal());
-        int result = this.fileService.createFile(new File(null, fileUpload.getOriginalFilename(),
-                fileUpload.getContentType(), fileUpload.getSize(), currentUser.getUserId(), fileUpload.getBytes()));
-        if (1 != result) {
-            model.addAttribute("errorMessage", "Failed to upload the selected file!");
-        } else {
-            model.addAttribute("successUpload", "The file was uploaded successfully.");
+        try {
+            int result = this.fileService.createFile(new File(null, fileUpload.getOriginalFilename(),
+                    fileUpload.getContentType(), fileUpload.getSize(), currentUser.getUserId(), fileUpload.getBytes()));
+            if (1 != result) {
+                model.addAttribute("errorMessage", "Failed to upload the selected file!");
+            } else {
+                model.addAttribute("successUpload", "The file was uploaded successfully.");
+            }
+        } catch (FileExistenceException $ex) {
+            model.addAttribute("errorMessage", $ex.getMessage());
         }
         return new ModelAndView("redirect:/home", (ModelMap) model);
     }

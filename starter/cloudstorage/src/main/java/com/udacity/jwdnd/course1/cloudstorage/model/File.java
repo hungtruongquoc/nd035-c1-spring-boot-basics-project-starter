@@ -36,4 +36,8 @@ public class File {
     public Long getFileSize() {
         return fileSize;
     }
+
+    public Integer getUserId() {
+        return userId;
+    }
 }

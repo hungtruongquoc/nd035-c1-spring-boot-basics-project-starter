@@ -20,4 +20,7 @@ public interface FileMapper {
 
     @Select("SELECT * FROM FILES WHERE fileId=#{id} AND userId=#{userId}")
     File getFile(Integer id, Integer userId);
+
+    @Select("SELECT COUNT(*) FROM FILES WHERE fileName=#{name} AND userId=#{userId}")
+    Integer getCountByName(String name, Integer userId);
 }
