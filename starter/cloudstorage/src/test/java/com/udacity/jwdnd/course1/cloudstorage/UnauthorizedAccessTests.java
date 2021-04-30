@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class UnauthorizedAccessTests extends CloudStorageApplicationTests {
-    private LoginPage page;
-    private SignUpPage signupPage;
+    private final LoginPage page;
+    private final SignUpPage signupPage;
 
     public UnauthorizedAccessTests() {
         page = new LoginPage(driver);

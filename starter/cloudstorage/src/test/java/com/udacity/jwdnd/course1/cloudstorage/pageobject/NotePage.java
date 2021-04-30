@@ -125,11 +125,13 @@ public class NotePage extends HomePage {
     }
 
     public WebElement getItemTitle(WebDriver driver, Integer itemId) {
-        return findElementByCss(driver, "tr.note-item-row[data-id='" + itemId.toString() + "'] th.note-item-title");
+        return findElementByCss(driver, "tr.note-item-row[data-id='" + itemId.toString()
+                + "'] th.note-item-title");
     }
 
     public WebElement getItemDescription(WebDriver driver, Integer itemId) {
-        return findElementByCss(driver, "tr.note-item-row[data-id='" + itemId.toString() + "'] td.note-item-description");
+        return findElementByCss(driver, "tr.note-item-row[data-id='" + itemId.toString()
+                + "'] td.note-item-description");
     }
 
     public WebElement getTitleTextBox() {
