@@ -306,7 +306,7 @@
                             <th scope="row" class="credential-url">
                                 <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
                             </th>
-                            <td scope="row" th:text="${credential.getUsername()}"></td>
+                            <td scope="row" class="credential-username" th:text="${credential.getUsername()}"></td>
                             <td scope="row" class="item-password" th:text="${credential.getPassword()}"></td>
                         </tr>
                         </tbody>

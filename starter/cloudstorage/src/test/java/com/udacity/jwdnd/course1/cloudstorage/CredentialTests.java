@@ -56,8 +56,8 @@ public class CredentialTests extends CloudStorageApplicationTests {
         waitDriver.until(ExpectedConditions.textToBePresentInElement(page.getSuccessAlert(),
                 "New credential created"));
         Assertions.assertTrue(page.getSuccessAlert().isDisplayed());
-        Assertions.assertTrue(page.getItemRow(driver, 1).isDisplayed());
-        Assertions.assertNotEquals(page.getTableItemPassword(driver, 1).getText(), "testpass");
+        Assertions.assertTrue(page.getItemRow(driver, 2).isDisplayed());
+        Assertions.assertNotEquals(page.getTableItemPassword(driver, 2).getText(), "testpass");
     }
 
     @Test
@@ -77,8 +77,31 @@ public class CredentialTests extends CloudStorageApplicationTests {
         waitDriver.until(ExpectedConditions.elementToBeClickable(confirmDelete));
         confirmDelete.click();
         waitDriver.until(ExpectedConditions.visibilityOfAllElements(page.getSuccessAlert()));
-        Assertions.assertEquals(page.getSuccessAlert().getText(), "The provided credential was deleted successfully.");
+        Assertions.assertEquals(page.getSuccessAlert().getText(),
+                "The provided credential was deleted successfully.");
+    }
 
+    @Test
+    public void editACredential() {
+        page.showAddDialog();
+        waitDriver.until(ExpectedConditions.visibilityOfAllElements(page.getAddDialog()));
+        Assertions.assertTrue(page.isCredentialModalDisplayed());
+        page.setCredentialInputs("https://edit.com", "abc", "editpass");
+        waitDriver.until(ExpectedConditions.elementToBeClickable(page.getSaveButton()));
+        page.saveCredential();
+        WebElement itemEdit = page.getTableItemEditButton(driver, 3);
+        waitDriver.until(ExpectedConditions.elementToBeClickable(itemEdit));
+        itemEdit.click();
+        waitDriver.until(ExpectedConditions.elementToBeClickable(page.getUpdateSubmitButton()));
+        Assertions.assertTrue(page.getUpdatePasswordInput().isDisplayed());
+        Assertions.assertEquals(page.getUpdatePasswordInput().getAttribute("value"), "editpass");
+        page.changeUpdateUsername("newTestUsername");
+        page.changeUpdatePassword("newTestPassword");
+        page.getUpdateSubmitButton().click();
+        waitDriver.until(ExpectedConditions.visibilityOfAllElements(page.getSuccessAlert()));
+        Assertions.assertEquals(page.getSuccessAlert().getText(), "Provided credential updated");
+        Assertions.assertTrue(page.getItemRow(driver, 3).isDisplayed());
+        Assertions.assertEquals(page.getTableItemUsername(driver, 3).getText(), "newTestUsername");
     }
 
     @AfterEach

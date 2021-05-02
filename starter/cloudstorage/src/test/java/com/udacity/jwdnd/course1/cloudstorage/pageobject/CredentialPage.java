@@ -10,7 +10,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.UUID;
 
-public class CredentialPage extends HomePage{
+public class CredentialPage extends HomePage {
 
     @FindBy(id = "nav-credentials-tab")
     private WebElement credentialTab;
@@ -29,6 +29,13 @@ public class CredentialPage extends HomePage{
 
     @FindBy(id = "credential-password")
     private WebElement passwordInput;
+
+    public WebElement getUpdateUsernameInput() {
+        return updateUsernameInput;
+    }
+
+    @FindBy(id = "credential-update-username")
+    private WebElement updateUsernameInput;
 
     public WebElement getSaveButton() {
         return saveCredentialButton;
@@ -51,6 +58,27 @@ public class CredentialPage extends HomePage{
     @FindBy(css = "#nav-credentials div.alert.alert-success")
     private WebElement successAlert;
 
+    public WebElement getUpdateModal() {
+        return updateModal;
+    }
+
+    @FindBy(id = "credentialUpdateModal")
+    private WebElement updateModal;
+
+    public WebElement getUpdateSubmitButton() {
+        return updateSubmitButton;
+    }
+
+    @FindBy(css = "#credentialUpdateModal #credential-update-submit")
+    private WebElement updateSubmitButton;
+
+    public WebElement getUpdatePasswordInput() {
+        return updatePasswordInput;
+    }
+
+    @FindBy(css = "#credentialUpdateModal #credential-update-password")
+    private WebElement updatePasswordInput;
+
     public CredentialPage(WebDriver driver) {
         super(driver);
     }
@@ -68,7 +96,7 @@ public class CredentialPage extends HomePage{
         passwordInput.sendKeys(password);
         return this;
     }
-    
+
     public CredentialPage activateCredentialTab() {
         credentialTab.click();
         return this;
@@ -109,12 +137,34 @@ public class CredentialPage extends HomePage{
                 + "'] td a.credential-delete");
     }
 
+    public WebElement getTableItemEditButton(WebDriver driver, Integer itemId) {
+        return findElementByCss(driver, "tr.credential-item[data-id='" + itemId.toString()
+                + "'] td a.credential-edit");
+    }
+
     public WebElement getTableItemUrl(WebDriver driver, Integer itemId) {
         return findElementByCss(driver, "tr.credential-item[data-id='" + itemId.toString()
                 + "'] th.credential-url");
     }
 
+    public WebElement getTableItemUsername(WebDriver driver, Integer itemId) {
+        return findElementByCss(driver, "tr.credential-item[data-id='" + itemId.toString()
+                + "'] td.credential-username");
+    }
+
     public WebElement getDeleteConfirmButton(WebDriver driver) {
         return findElementByCss(driver, "#deleteCredentialModal button.confirm-delete-item");
+    }
+
+    public void changeUpdateUsername(String newUsername) {
+        WebElement input = getUpdateUsernameInput();
+        input.clear();
+        input.sendKeys(newUsername);
+    }
+
+    public void changeUpdatePassword(String newPassword) {
+        WebElement input = getUpdatePasswordInput();
+        input.clear();
+        input.sendKeys(newPassword);
     }
 }
