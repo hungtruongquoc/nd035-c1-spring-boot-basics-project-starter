@@ -288,10 +288,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="credential, stat: ${credentials}">
+                        <tr th:each="credential, stat: ${credentials}" class="credential-item"
+                            th:data-id="${credential.getCredentialId()}">
                             <td>
                                 <a href="credentials" th:href="@{/credentials/{id}(id=${credential.getCredentialId()})}"
-                                   class="btn btn-success note-edit" role="button"
+                                   class="btn btn-success credential-edit" role="button"
                                    th:data-description="${credential.getUsername()}"
                                    th:data-id="${credential.getCredentialId()}">
                                     <i class="far fa-edit"></i>
@@ -302,11 +303,11 @@
                                     <i class="far fa-trash-alt"></i>
                                 </a>
                             </td>
-                            <th scope="row">
+                            <th scope="row" class="credential-url">
                                 <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
                             </th>
                             <td scope="row" th:text="${credential.getUsername()}"></td>
-                            <td scope="row" th:text="${credential.getPassword()}"></td>
+                            <td scope="row" class="item-password" th:text="${credential.getPassword()}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -429,7 +430,7 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="far fa-times"></i> Cancel
                                 </button>
-                                <button type="button" class="btn btn-danger"
+                                <button type="button" class="btn btn-danger confirm-delete-item"
                                         onclick="$('#deletedCredentialSubmit').click();">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </button>
