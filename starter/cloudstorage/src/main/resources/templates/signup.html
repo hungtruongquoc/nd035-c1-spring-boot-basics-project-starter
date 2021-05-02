@@ -17,8 +17,9 @@
 
             <h1 class="display-5">Sign Up</h1>
             <form action="#" method="POST" th:action="@{'/signup'}">
-                <div class="alert alert-success" th:if="${signupSuccess == true}">
-                    <i class="fas fa-check-circle"></i> You successfully signed up! Please continue to the <a href="/login">login</a> page.
+                <div class="alert alert-success signup-success-text" th:if="${signupSuccess == true}">
+                    <i class="fas fa-check-circle"></i> ' '
+                    You successfully signed up! Please continue to the <a class="login-navigator" href="/login">login</a> page.
                 </div>
                 <div class="alert alert-danger" th:if="${signupError != null}">
                     <i class="fas fa-exclamation-circle"></i>  <span th:text="${signupError}"></span>
@@ -43,7 +44,7 @@
                         <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Enter Password" maxlength="20" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="far fa-user-plus"></i> Sign Up</button>
+                <button type="submit" class="btn btn-primary form-submission"><i class="far fa-user-plus"></i> Sign Up</button>
             </form>
         </div>
     </body>

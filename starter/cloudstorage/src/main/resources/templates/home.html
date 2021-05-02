@@ -13,7 +13,7 @@
 <div class="container">
     <div id="logoutDiv">
         <form action="#" method="POST" th:action="@{/logout}">
-            <button type="submit" class="btn btn-secondary float-right">
+            <button type="submit" class="btn btn-secondary float-right logout">
                 <i class="far fa-sign-out-alt"></i> Logout
             </button>
         </form>
@@ -146,7 +146,7 @@
                     </button>
                 </div>
                 <button style="margin: 0.25em; display: flex; align-items: center" type="button"
-                        class="btn btn-info float-right"
+                        class="btn btn-info float-right add-note"
                         onclick="showNoteModal()">
                     <span class="fa-stack" style="font-size: .9em">
                         <i class="far fa-sticky-note fa-stack-2x"></i>
@@ -170,7 +170,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="note, stat: ${notes}">
+                        <tr th:each="note, stat: ${notes}" th:data-id="${note.noteId}" class="note-item-row">
                             <td>
                                 <a href="#" target="_blank" class="btn btn-success note-edit" role="button"
                                    th:data-description="${note.noteDescription}" th:data-id="${note.noteId}"
@@ -182,8 +182,8 @@
                                     <i class="far fa-trash-alt"></i> Delete
                                 </a>
                             </td>
-                            <th scope="row" th:text="${note.getNoteTitle()}"></th>
-                            <td th:text="${note.getNoteDescription()}"></td>
+                            <th scope="row" th:text="${note.getNoteTitle()}" class="note-item-title"></th>
+                            <td th:text="${note.getNoteDescription()}" class="note-item-description"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -217,10 +217,10 @@
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">
                                     <i class="far fa-times"></i> Close
                                 </button>
-                                <button type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">
+                                <button type="button" class="btn btn-primary save-note" onclick="$('#noteSubmit').click();">
                                     <i class="far fa-save"></i> Save changes
                                 </button>
                             </div>
@@ -252,7 +252,7 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="far fa-times"></i> Cancel
                                 </button>
-                                <button type="button" class="btn btn-danger" onclick="$('#deletedNoteSubmit').click();">
+                                <button type="button" class="btn btn-danger note-delete" onclick="$('#deletedNoteSubmit').click();">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </button>
                             </div>
@@ -270,7 +270,7 @@
                     </button>
                 </div>
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
-                        onclick="showCredentialModal()">
+                        onclick="showCredentialModal()" id="credential-add">
                     <i class="far fa-user-plus"></i> Add a New Credential
                 </button>
 
@@ -288,10 +288,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="credential, stat: ${credentials}">
+                        <tr th:each="credential, stat: ${credentials}" class="credential-item"
+                            th:data-id="${credential.getCredentialId()}">
                             <td>
                                 <a href="credentials" th:href="@{/credentials/{id}(id=${credential.getCredentialId()})}"
-                                   class="btn btn-success note-edit" role="button"
+                                   class="btn btn-success credential-edit" role="button"
                                    th:data-description="${credential.getUsername()}"
                                    th:data-id="${credential.getCredentialId()}">
                                     <i class="far fa-edit"></i>
@@ -302,11 +303,11 @@
                                     <i class="far fa-trash-alt"></i>
                                 </a>
                             </td>
-                            <th scope="row">
+                            <th scope="row" class="credential-url">
                                 <a th:href="${credential.getUrl()}" th:text="${credential.getUrl()}"></a>
                             </th>
-                            <td scope="row" th:text="${credential.getUsername()}"></td>
-                            <td scope="row" th:text="${credential.getPassword()}"></td>
+                            <td scope="row" class="credential-username" th:text="${credential.getUsername()}"></td>
+                            <td scope="row" class="item-password" th:text="${credential.getPassword()}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -429,7 +430,7 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="far fa-times"></i> Cancel
                                 </button>
-                                <button type="button" class="btn btn-danger"
+                                <button type="button" class="btn btn-danger confirm-delete-item"
                                         onclick="$('#deletedCredentialSubmit').click();">
                                     <i class="far fa-trash-alt"></i> Delete
                                 </button>
