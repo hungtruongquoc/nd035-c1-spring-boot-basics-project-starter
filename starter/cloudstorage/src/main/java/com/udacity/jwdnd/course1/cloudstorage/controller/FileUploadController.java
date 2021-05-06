@@ -37,18 +37,31 @@ public class FileUploadController {
     }
 
     @PostMapping()
-    public ModelAndView handleFileUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
+    public ModelAndView handleFileUpload(Authentication authentication,
+                                         @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         User currentUser = userService.getUser((String) authentication.getPrincipal());
-        try {
-            int result = this.fileService.createFile(new File(null, fileUpload.getOriginalFilename(),
-                    fileUpload.getContentType(), fileUpload.getSize(), currentUser.getUserId(), fileUpload.getBytes()));
-            if (1 != result) {
-                model.addAttribute("errorMessage", "Failed to upload the selected file!");
-            } else {
-                model.addAttribute("successUpload", "The file was uploaded successfully.");
+        boolean hasNoError = true;
+
+        if (fileUpload.isEmpty()) {
+            model.addAttribute("errorMessage", "No file found. Please select a file to upload!");
+            hasNoError = false;
+        }
+        if (hasNoError && fileUpload.getSize() >= 5L * 1024 * 1024 * 1024) {
+            model.addAttribute("errorMessage", "Provided file is too big. Please select a smaller file to upload!");
+            hasNoError = false;
+        }
+        if (hasNoError) {
+            try {
+                int result = this.fileService.createFile(new File(null, fileUpload.getOriginalFilename(),
+                        fileUpload.getContentType(), fileUpload.getSize(), currentUser.getUserId(), fileUpload.getBytes()));
+                if (1 != result) {
+                    model.addAttribute("errorMessage", "Failed to upload the selected file!");
+                } else {
+                    model.addAttribute("successUpload", "The file was uploaded successfully.");
+                }
+            } catch (FileExistenceException $ex) {
+                model.addAttribute("errorMessage", $ex.getMessage());
             }
-        } catch (FileExistenceException $ex) {
-            model.addAttribute("errorMessage", $ex.getMessage());
         }
         return new ModelAndView("redirect:/home", (ModelMap) model);
     }
