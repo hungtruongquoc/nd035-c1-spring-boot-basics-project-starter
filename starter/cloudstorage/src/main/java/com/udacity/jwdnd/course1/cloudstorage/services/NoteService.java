@@ -13,22 +13,26 @@ public class NoteService {
     }
 
     public int createNote(Note newNote) {
-        return this.noteMapper.insert(newNote);
+        return noteMapper.insert(newNote);
     }
 
     public Note[] getAll() {
-        return this.noteMapper.getAll();
+        return noteMapper.getAll();
+    }
+
+    public Note[] getAllByUser(Integer userId) {
+        return noteMapper.getAllByUser(userId);
     }
 
     public Note getById(Integer noteId) {
-        return this.noteMapper.findById(noteId);
+        return noteMapper.findById(noteId);
     }
 
     public int updateNote(Note currentNote) {
-        return this.noteMapper.update(currentNote);
+        return noteMapper.update(currentNote);
     }
 
     public int deleteNote(Integer noteId) {
-        return this.noteMapper.delete(noteId);
+        return noteMapper.delete(noteId);
     }
 }

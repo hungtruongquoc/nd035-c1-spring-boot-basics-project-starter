@@ -8,6 +8,9 @@ public interface FileMapper {
     @Select("SELECT * FROM FILES WHERE fileId = #{fileId}")
     File findById(Integer fileId);
 
+    @Select("SELECT * FROM FILES WHERE userId = #{userId}")
+    File[] findByUser(Integer userId);
+
     @Select("SELECT * FROM FILES")
     File[] files();
 
