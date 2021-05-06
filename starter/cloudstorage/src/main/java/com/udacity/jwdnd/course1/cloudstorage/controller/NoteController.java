@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -72,7 +73,8 @@ public class NoteController extends BaseController {
         } else {
             targetNote = new Note();
         }
-        targetNote.setNoteTitle(noteForm.getNoteTitle()).setNoteDescription(noteForm.getNoteDescription());
+        targetNote.setNoteTitle(noteForm.getNoteTitle()).setUserId(noteForm.getUserId())
+                .setNoteDescription(noteForm.getNoteDescription());
 
         return (Integer) performDataManipulation.invoke(this.noteService, targetNote);
     }
@@ -83,11 +85,12 @@ public class NoteController extends BaseController {
     }
 
     @PostMapping()
-    public ModelAndView createNote(Model model, Authentication authentication, @ModelAttribute("newNote") NoteForm note,
+    public ModelAndView createNote(Model model, @ModelAttribute("newNote") NoteForm note,
                                    @RequestParam(name = "action", required = false) String action) {
 
         HashMap<String, Object> viewData;
-        User currentUser = userService.getUser((String) authentication.getPrincipal());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.getUser((String) auth.getPrincipal());
 
         if (null != action && action.contains("delete")) {
             if (1 == this.noteService.deleteNote(note.getNoteId())) {
