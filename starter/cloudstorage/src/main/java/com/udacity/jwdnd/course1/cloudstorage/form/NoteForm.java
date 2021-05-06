@@ -4,6 +4,7 @@ public class NoteForm {
     private String noteTitle;
     private String noteDescription;
     private Integer noteId;
+    private Integer userId;
 
     public String getNoteTitle() {
         return this.noteTitle;
@@ -43,5 +44,13 @@ public class NoteForm {
 
     public boolean hasNoteId() {
         return null != noteId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

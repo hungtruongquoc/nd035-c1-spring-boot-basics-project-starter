@@ -17,11 +17,15 @@ public class FileService {
         if (checkFileNameExistence(file.getFileName(), file.getUserId())) {
             throw new FileExistenceException(file.getFileName() + " already exists.", null);
         }
-        return this.fileMapper.insert(file);
+        return fileMapper.insert(file);
     }
 
     public File[] getAllFiles() {
-        return this.fileMapper.files();
+        return fileMapper.files();
+    }
+
+    public File[] getAllFilesByUser(Integer userId) {
+        return fileMapper.findByUser(userId);
     }
 
     public Boolean checkFileNameExistence(String fileName, Integer userId) {
@@ -29,11 +33,11 @@ public class FileService {
     }
 
     public File findById(Integer id) {
-        return this.fileMapper.findById(id);
+        return fileMapper.findById(id);
     }
 
     public Integer delete(Integer id) {
-        return this.fileMapper.delete(id);
+        return fileMapper.delete(id);
     }
 
     public File getFile(Integer fileId, Integer userId) {

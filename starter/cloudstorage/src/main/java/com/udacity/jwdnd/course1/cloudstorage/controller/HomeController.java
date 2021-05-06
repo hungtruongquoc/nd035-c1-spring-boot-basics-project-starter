@@ -47,7 +47,7 @@ public class HomeController {
                            @RequestParam(name = "currentCredential", required = false) Integer credentialId,
                            @RequestParam(name = "fileDeleted", required = false) Integer fileDeleted) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser;
+        User currentUser = null;
         Credential currentCredential = new Credential();
         File currentFile = null;
         Credential[] credentials = null;
@@ -55,7 +55,7 @@ public class HomeController {
         if (null != auth) {
             currentUser = userService.getUser((String) auth.getPrincipal());
             if (null != currentUser) {
-                credentials = this.credentialService.getCredentialsByUser(currentUser.getUserId());
+                credentials = credentialService.getCredentialsByUser(currentUser.getUserId());
             }
         }
         if (null != credentialId) {
@@ -65,8 +65,8 @@ public class HomeController {
             currentFile = fileService.findById(fileId);
         }
 
-        model.addAttribute("files", this.fileService.getAllFiles())
-                .addAttribute("notes", this.noteService.getAll())
+        model.addAttribute("files", null != currentUser ? fileService.getAllFilesByUser(currentUser.getUserId()) : new File[0])
+                .addAttribute("notes", null != currentUser ? noteService.getAllByUser(currentUser.getUserId()) : new Note[0])
                 .addAttribute("credentials", credentials)
                 .addAttribute("errorMessage", null)
                 .addAttribute("newCredential", new Credential())

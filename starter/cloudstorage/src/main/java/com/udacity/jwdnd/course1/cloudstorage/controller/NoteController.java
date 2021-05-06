@@ -2,10 +2,13 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.form.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
+import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
+import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -25,6 +28,7 @@ import java.util.HashMap;
 public class NoteController extends BaseController {
 
     private final NoteService noteService;
+    private final UserService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 
@@ -73,15 +77,17 @@ public class NoteController extends BaseController {
         return (Integer) performDataManipulation.invoke(this.noteService, targetNote);
     }
 
-    public NoteController(NoteService noteService) {
+    public NoteController(NoteService noteService, UserService userService) {
         this.noteService = noteService;
+        this.userService = userService;
     }
 
     @PostMapping()
-    public ModelAndView createNote(Model model, @ModelAttribute("newNote") NoteForm note,
+    public ModelAndView createNote(Model model, Authentication authentication, @ModelAttribute("newNote") NoteForm note,
                                    @RequestParam(name = "action", required = false) String action) {
 
         HashMap<String, Object> viewData;
+        User currentUser = userService.getUser((String) authentication.getPrincipal());
 
         if (null != action && action.contains("delete")) {
             if (1 == this.noteService.deleteNote(note.getNoteId())) {
@@ -95,6 +101,7 @@ public class NoteController extends BaseController {
             try {
                 if (note.isValid()) {
                     if (null == note.getNoteId()) {
+                        note.setUserId(currentUser.getUserId());
                         viewData = this.createNote(note);
                     } else {
                         viewData = this.updateNote(note);
