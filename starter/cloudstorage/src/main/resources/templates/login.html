@@ -13,11 +13,14 @@
         <div class="container justify-content-center w-25 p-3" style="background-color: #eeeeee; margin-top: 5em;">
             <h1 class="display-5">Login</h1>
             <form action="#" method="POST" th:action="@{/login}" th:object="${user}">
+                <div th:if="${signupSuccess != null}" class="alert alert-success logout-alert">
+                    <i class="fas fa-fw fa-check-circle"></i> Your credential was created successfully. Please login below.
+                </div>
                 <div th:if="${param.error}" class="alert alert-danger invalid-alert">
                    <i class="fas fa-fw fa-exclamation-circle"></i>  Invalid username and password.
                 </div>
                 <div th:if="${param.logout}" class="alert alert-success logout-alert">
-                   <i class="fas fa-faw fa-check-circle"></i> You have been logged out.
+                   <i class="fas fa-fw fa-check-circle"></i> You have been logged out.
                 </div>
                 <div class="form-group">
                     <label for="inputUsername"><i class="far fa-user"></i> Username</label>
